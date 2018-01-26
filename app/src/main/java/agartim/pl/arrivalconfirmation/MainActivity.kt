@@ -24,12 +24,12 @@ class MainActivity : AppCompatActivity() {
 
         message.setText(sharedPreferences.getString(PREFS_MESSAGE, ""))
 
-        fab.setOnClickListener { view ->
+        addNumberButton.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
         }
 
-        send.setOnClickListener { view ->
+        sendButton.setOnClickListener { view ->
             Snackbar.make(view, "Send sms to receivers", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
         }

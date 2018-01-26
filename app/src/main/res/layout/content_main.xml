@@ -9,7 +9,7 @@
     tools:showIn="@layout/activity_main">
 
     <Button
-        android:id="@+id/send"
+        android:id="@+id/sendButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/send"
@@ -21,10 +21,10 @@
         android:layout_height="wrap_content"
         android:hint="@string/enter_sms_message"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/send" />
+        app:layout_constraintTop_toBottomOf="@id/sendButton" />
 
     <ListView
-        android:id="@+id/numbers_list"
+        android:id="@+id/numbersList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintTop_toBottomOf="@id/message" />
