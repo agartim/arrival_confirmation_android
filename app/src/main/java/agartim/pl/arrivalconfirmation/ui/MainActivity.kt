@@ -17,6 +17,9 @@ import android.widget.Toast
 
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
+import android.R.attr.phoneNumber
+import android.telephony.SmsManager
+
 
 class MainActivity : AppCompatActivity(), MainMVP.View {
 
@@ -109,5 +112,9 @@ class MainActivity : AppCompatActivity(), MainMVP.View {
 
     private fun sendSmses() {
         Toast.makeText(this, "Send smses", Toast.LENGTH_LONG).show()
+        val sms = SmsManager.getDefault()
+        val numberAga = "504618756"
+
+        sms.sendTextMessage(numberAga, null, message.text.toString(), null, null)
     }
 }
