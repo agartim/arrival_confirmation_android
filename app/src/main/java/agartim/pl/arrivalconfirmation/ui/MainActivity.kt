@@ -2,7 +2,6 @@ package agartim.pl.arrivalconfirmation.ui
 
 import agartim.pl.arrivalconfirmation.R
 import android.Manifest
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -17,7 +16,6 @@ import android.widget.Toast
 
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
-import android.R.attr.phoneNumber
 import android.telephony.SmsManager
 
 
@@ -25,29 +23,28 @@ class MainActivity : AppCompatActivity(), MainMVP.View {
 
     val MY_PERMISSIONS_REQUEST_SEND_SMS = 11
 
-    lateinit var sharedPreferences: SharedPreferences
-    val PREFS_MESSAGE: String = "sms_message"
+    lateinit var presenter: MainMVP.Presenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
 
-        message.setText(sharedPreferences.getString(PREFS_MESSAGE, ""))
+        presenter = MainPresenter(PreferenceManager.getDefaultSharedPreferences(applicationContext))
+        presenter.start(this)
 
         addNumberButton.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
+//            presenter.addPhoneNumber("504618756")
+            presenter.addPhoneNumber("503567054")
         }
 
         sendButton.setOnClickListener { view ->
             (
                     if (shouldAskSendSMSPermission()) {
-                        if (isSendSMSPermissionGranted())
-                            sendSmses()
-                        else askForSendSMSPermission()
-                    } else sendSmses()
+                        if (isSendSMSPermissionGranted()) presenter.clickSendSms() else askForSendSMSPermission()
+                    } else presenter.clickSendSms()
                     )
         }
     }
@@ -70,7 +67,7 @@ class MainActivity : AppCompatActivity(), MainMVP.View {
 
     override fun onPause() {
         super.onPause()
-        readAndSaveMessage()
+        presenter.saveMessage(message.text.toString())
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -80,7 +77,7 @@ class MainActivity : AppCompatActivity(), MainMVP.View {
                 if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
-                    sendSmses()
+                    presenter.clickSendSms()
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
@@ -98,8 +95,6 @@ class MainActivity : AppCompatActivity(), MainMVP.View {
         }
     }
 
-    private fun readAndSaveMessage() = sharedPreferences.edit().putString(PREFS_MESSAGE, message.text.toString()).apply()
-
     private fun shouldAskSendSMSPermission() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
 
     private fun isSendSMSPermissionGranted() = PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS)
@@ -110,11 +105,25 @@ class MainActivity : AppCompatActivity(), MainMVP.View {
                 MY_PERMISSIONS_REQUEST_SEND_SMS)
     }
 
-    private fun sendSmses() {
+    override fun setMessage(smsMessage: String) {
+        message.setText(smsMessage)
+    }
+
+    override fun getMessage(): String {
+        return message.text.toString();
+    }
+
+    override fun setNumbers(phoneNumbers: List<String>) {
+//        todo: zaimplementować
+    }
+
+    override fun showNotValidParamsInfo() {
+        Toast.makeText(this, "Message or number not valid", Toast.LENGTH_LONG).show()
+    }
+
+    override fun sendSmsMessage(phoneNumber: String, smsMessage: String) {
         Toast.makeText(this, "Send smses", Toast.LENGTH_LONG).show()
         val sms = SmsManager.getDefault()
-        val numberAga = "504618756"
-
-        sms.sendTextMessage(numberAga, null, message.text.toString(), null, null)
+        sms.sendTextMessage(phoneNumber, null, smsMessage, null, null)
     }
 }
