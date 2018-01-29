@@ -11,6 +11,7 @@ interface MainMVP {
 
         fun addPhoneNumber(phoneNumber: String)
         fun getPhoneNumbers(): List<String>
+        fun removeAllPhoneNumbers()
 
         fun isMessageValid(): Boolean
         fun isNumbersValid(): Boolean
@@ -33,5 +34,7 @@ interface MainMVP {
         fun clickSendSms()
         fun addPhoneNumber(phoneNumber: String)
         fun saveMessage(smsMessage: String)
+
+        fun clearAllNumbers()
     }
 }

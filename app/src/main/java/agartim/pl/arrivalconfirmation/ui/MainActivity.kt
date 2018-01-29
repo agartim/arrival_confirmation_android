@@ -2,6 +2,7 @@ package agartim.pl.arrivalconfirmation.ui
 
 import agartim.pl.arrivalconfirmation.R
 import android.Manifest
+import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -9,6 +10,7 @@ import android.preference.PreferenceManager
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
@@ -17,6 +19,7 @@ import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import android.telephony.SmsManager
+import android.widget.EditText
 
 
 class MainActivity : AppCompatActivity(), MainMVP.View {
@@ -34,19 +37,29 @@ class MainActivity : AppCompatActivity(), MainMVP.View {
         presenter.start(this)
 
         addNumberButton.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-//            presenter.addPhoneNumber("504618756")
-            presenter.addPhoneNumber("503567054")
+            showEnterPhoneNumberDialog()
         }
 
         sendButton.setOnClickListener { view ->
             (
                     if (shouldAskSendSMSPermission()) {
-                        if (isSendSMSPermissionGranted()) presenter.clickSendSms() else askForSendSMSPermission()
+                        if (isSendSMSPermissionGranted()) {
+                            presenter.saveMessage(message.text.toString())
+                            presenter.clickSendSms()
+                        } else askForSendSMSPermission()
                     } else presenter.clickSendSms()
                     )
         }
+    }
+
+    private fun showEnterPhoneNumberDialog() {
+        val etPhoneNumber: EditText = EditText(this);
+        AlertDialog.Builder(this)
+                .setTitle("Enter phone number")
+                .setView(etPhoneNumber)
+                .setPositiveButton("OK", { dialogInterface, i -> presenter.addPhoneNumber(etPhoneNumber.text.toString()) })
+                .setNegativeButton("Cancel", { dialogInterface, i -> dialogInterface.dismiss() })
+                .show()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -60,9 +73,19 @@ class MainActivity : AppCompatActivity(), MainMVP.View {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
-            R.id.action_settings -> true
+            R.id.action_clear_all -> showRemoveAllNumbersDialog()
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun showRemoveAllNumbersDialog(): Boolean {
+        AlertDialog.Builder(this)
+                .setTitle("Remove numbers")
+                .setMessage("Do you really want to remove all numbers?")
+                .setPositiveButton("Yes", { dialogInterface, i -> presenter.clearAllNumbers() })
+                .setNegativeButton("No", { dialogInterface, i -> dialogInterface.dismiss() })
+                .show()
+        return true
     }
 
     override fun onPause() {
@@ -115,6 +138,7 @@ class MainActivity : AppCompatActivity(), MainMVP.View {
 
     override fun setNumbers(phoneNumbers: List<String>) {
 //        todo: zaimplementować
+        numbersLabel.setText(phoneNumbers.joinToString("\n"))
     }
 
     override fun showNotValidParamsInfo() {
