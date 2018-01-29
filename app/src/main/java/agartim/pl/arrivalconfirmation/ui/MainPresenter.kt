@@ -40,5 +40,10 @@ class MainPresenter(val prefs: SharedPreferences) : MainMVP.Presenter {
         model.setMessage(smsMessage)
     }
 
+    override fun clearAllNumbers() {
+        model.removeAllPhoneNumbers()
+        view?.setNumbers(model.getPhoneNumbers())
+    }
+
     fun isNumberPresentInList(phoneNumber: String) = model.getPhoneNumbers().contains(phoneNumber)
 }
